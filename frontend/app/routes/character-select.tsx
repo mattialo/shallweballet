@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router"
+import { SignedIn, SignedOut, SignIn } from "@clerk/clerk-react"
 import { CharacterCard } from "@/components/CharacterCard"
 import { Button } from "@/components/ui/button"
 import { CHARACTERS } from "@/lib/characters"
@@ -19,6 +20,13 @@ export default function CharacterSelect() {
   }
 
   return (
+    <>
+    <SignedOut>
+      <div className="flex min-h-svh items-center justify-center">
+        <SignIn routing="hash" />
+      </div>
+    </SignedOut>
+    <SignedIn>
     <div className="relative min-h-svh">
       <div className="fixed inset-0 -z-10 bg-background" />
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-10">
@@ -73,5 +81,7 @@ export default function CharacterSelect() {
         </div>
       </div>
     </div>
+    </SignedIn>
+    </>
   )
 }

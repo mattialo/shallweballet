@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useLocation, useNavigate } from "react-router"
+import { useAuth, SignedIn, SignedOut, SignIn } from "@clerk/clerk-react"
 import { CHARACTERS } from "@/lib/characters"
 import { RaceScene } from "@/components/race/race-scene"
 import { CountdownOverlay } from "@/components/race/countdown-overlay"
@@ -11,6 +12,7 @@ import { RaceProgressBar } from "@/components/race/race-progress-bar"
 export default function Race() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { getToken } = useAuth()
   const state = (location.state ?? {}) as { characterIds?: string[] }
   const characterIds = state.characterIds ?? []
 
@@ -44,13 +46,17 @@ export default function Race() {
       return
     }
 
+    getToken().then((token) =>
     fetch(`${import.meta.env.VITE_BACKEND_URL ?? "http://localhost:3000"}/api/race`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
       body: JSON.stringify({
         racers: characterIds.map((id, i) => ({ id, lane: i })),
       }),
-    })
+    }))
       .then((r) => r.json())
       .then((data: { ticks: Record<string, number>[]; finishOrder: string[] }) => {
         ticksRef.current = data.ticks
@@ -108,6 +114,13 @@ export default function Race() {
   if (characterIds.length === 0) return null
 
   return (
+    <>
+    <SignedOut>
+      <div className="flex min-h-svh items-center justify-center">
+        <SignIn routing="hash" />
+      </div>
+    </SignedOut>
+    <SignedIn>
     <div className="h-svh w-screen overflow-hidden">
       <RaceScene simRef={simRef} runningRef={runningRef} onRaceOver={handleRaceOver} showModal={showModal} />
       {countdown !== null && <CountdownOverlay value={countdown} />}
@@ -121,5 +134,7 @@ export default function Race() {
         />
       )}
     </div>
+    </SignedIn>
+    </>
   )
 }

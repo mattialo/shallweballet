@@ -138,6 +138,7 @@ async function getRaceById(id) {
 // app.ts
 var import_express5 = __toESM(require("express"));
 var import_cors = __toESM(require("cors"));
+var import_express6 = require("@clerk/express");
 
 // config.ts
 var PORT = Number.parseInt(process.env.PORT ?? "3000");
@@ -433,10 +434,11 @@ var history_default = router4;
 var app = (0, import_express5.default)();
 app.use((0, import_cors.default)({ origin: CORS_ORIGIN }));
 app.use(import_express5.default.json());
+app.use((0, import_express6.clerkMiddleware)());
 app.use("/api", status_default);
-app.use("/api", race_default);
 app.use("/api", stats_default);
 app.use("/api", history_default);
+app.use("/api", (0, import_express6.requireAuth)(), race_default);
 var app_default = app;
 
 // api/index.ts
