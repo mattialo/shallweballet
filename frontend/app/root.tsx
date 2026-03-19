@@ -25,7 +25,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <title>La Ballata</title>
       </head>
       <body>
-        <ClerkProvider publishableKey={CLERK_KEY} waitlistUrl="/waitlist">
+        <ClerkProvider publishableKey={CLERK_KEY}>
           {children}
         </ClerkProvider>
         <Analytics />

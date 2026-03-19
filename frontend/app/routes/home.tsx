@@ -10,9 +10,6 @@ export default function Home() {
     <div className="flex min-h-svh flex-col items-center justify-center">
       <div className="fixed top-4 right-4 z-20 flex items-center gap-3">
         <SignedOut>
-          <Button variant="outline" size="sm" onClick={() => navigate("/waitlist")}>
-            Join Waitlist
-          </Button>
           <SignInButton mode="modal">
             <Button variant="outline" size="sm">Sign in</Button>
           </SignInButton>
