@@ -43,14 +43,23 @@ This repo is designed to be deployed as **two separate Vercel projects** from th
 ### Backend
 
 - **Root Directory**: `backend`
+- **Framework Preset**: `Other`
 - **Environment Variables**:
   - `DATABASE_URL` — PostgreSQL connection string (e.g. Supabase)
   - `CORS_ORIGIN` — Frontend URL (e.g. `https://your-frontend.vercel.app`)
   - `OTEL_EXPORTER_OTLP_ENDPOINT` — (optional) OpenTelemetry collector
 
+> **Note:** The backend serverless function is pre-bundled as `backend/api/index.js`.
+> After modifying backend code, rebuild before committing:
+> ```sh
+> cd backend
+> npm run build:vercel
+> ```
+
 ### Frontend
 
 - **Root Directory**: `frontend`
+- **Framework Preset**: `Vite`
 - **Environment Variables**:
   - `VITE_BACKEND_URL` — Backend URL (e.g. `https://your-backend.vercel.app`)
 
