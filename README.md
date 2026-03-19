@@ -29,12 +29,13 @@ bun install
 bun run dev          # runs on :5173
 ```
 
-### Docker
+### After Cloning
 
 ```sh
-docker compose up --build
-# frontend → localhost:8080, backend → localhost:3000
+git config core.hooksPath .githooks
 ```
+
+This enables the pre-commit hook that auto-rebuilds `backend/api/index.js` whenever backend `.ts` files are changed.
 
 ## Deploy on Vercel
 
@@ -47,13 +48,14 @@ This repo is designed to be deployed as **two separate Vercel projects** from th
 - **Environment Variables**:
   - `DATABASE_URL` — PostgreSQL connection string (e.g. Supabase)
   - `CORS_ORIGIN` — Frontend URL (e.g. `https://your-frontend.vercel.app`)
+  - `CLERK_PUBLISHABLE_KEY` — Clerk publishable key
+  - `CLERK_SECRET_KEY` — Clerk secret key
   - `OTEL_EXPORTER_OTLP_ENDPOINT` — (optional) OpenTelemetry collector
 
 > **Note:** The backend serverless function is pre-bundled as `backend/api/index.js`.
-> After modifying backend code, rebuild before committing:
+> A pre-commit hook rebuilds it automatically. If you need to rebuild manually:
 > ```sh
-> cd backend
-> npm run build:vercel
+> cd backend && npm run build:vercel
 > ```
 
 ### Frontend
@@ -62,6 +64,7 @@ This repo is designed to be deployed as **two separate Vercel projects** from th
 - **Framework Preset**: `Vite`
 - **Environment Variables**:
   - `VITE_BACKEND_URL` — Backend URL (e.g. `https://your-backend.vercel.app`)
+  - `VITE_CLERK_PUBLISHABLE_KEY` — Clerk publishable key
 
 ## Load Testing (k6)
 
