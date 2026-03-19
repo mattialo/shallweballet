@@ -1,13 +1,12 @@
 {
   "version": 2,
-  "buildCommand": "npm install",
-  "installCommand": "npm install",
-  "functions": {
-    "api/index.ts": {
-      "runtime": "@vercel/node@3"
+  "builds": [
+    {
+      "src": "api/index.ts",
+      "use": "@vercel/node"
     }
-  },
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/api" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/api" }
   ]
 }
