@@ -1,0 +1,16 @@
+{
+  "name": "k6",
+  "private": true,
+  "scripts": {
+    "test": "k6 run race.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@types/k6": "^1.6.0"
+  }
+}
