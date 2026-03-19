@@ -38,8 +38,9 @@ export async function saveRace(
   finishOrder: string[],
   ticks: Array<Record<string, number>>,
 ) {
-  const [{ id: raceId }] =
+  const result =
     await sql`INSERT INTO races (race_ticks) VALUES (${JSON.stringify(ticks)}::jsonb) RETURNING id`
+  const raceId = result[0]!.id
 
   const participants = racers.map((racer) => ({
     race_id: raceId,
