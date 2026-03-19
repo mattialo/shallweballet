@@ -7,4 +7,5 @@ export default [
   route("stats", "routes/stats.tsx"),
   route("races", "routes/race-history.tsx"),
   route("races/:id", "routes/race-replay.tsx"),
+  route("waitlist", "routes/waitlist.tsx"),
 ] satisfies RouteConfig

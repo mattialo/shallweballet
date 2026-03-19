@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router"
-import { SignedIn, SignedOut, SignIn } from "@clerk/clerk-react"
+import { SignedIn, SignedOut } from "@clerk/clerk-react"
 import { CharacterCard } from "@/components/CharacterCard"
 import { Button } from "@/components/ui/button"
 import { CHARACTERS } from "@/lib/characters"
@@ -22,8 +22,12 @@ export default function CharacterSelect() {
   return (
     <>
     <SignedOut>
-      <div className="flex min-h-svh items-center justify-center">
-        <SignIn routing="hash" />
+      <div className="flex min-h-svh flex-col items-center justify-center gap-4">
+        <p className="text-lg text-foreground/70">Sign in to start racing</p>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={() => navigate("/waitlist")}>Join Waitlist</Button>
+          <Button onClick={() => navigate("/")}>← Home</Button>
+        </div>
       </div>
     </SignedOut>
     <SignedIn>

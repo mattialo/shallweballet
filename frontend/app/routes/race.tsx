@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useLocation, useNavigate } from "react-router"
-import { useAuth, SignedIn, SignedOut, SignIn } from "@clerk/clerk-react"
+import { useAuth, SignedIn, SignedOut } from "@clerk/clerk-react"
 import { CHARACTERS } from "@/lib/characters"
 import { RaceScene } from "@/components/race/race-scene"
 import { CountdownOverlay } from "@/components/race/countdown-overlay"
@@ -8,6 +8,7 @@ import { Scoreboard } from "@/components/race/scoreboard"
 import { FinishModal } from "@/components/race/finish-modal"
 import { type RacerSim, SPEED_INTERVAL_MS } from "@/components/race/race-constants"
 import { RaceProgressBar } from "@/components/race/race-progress-bar"
+import { Button } from "@/components/ui/button"
 
 export default function Race() {
   const location = useLocation()
@@ -116,8 +117,9 @@ export default function Race() {
   return (
     <>
     <SignedOut>
-      <div className="flex min-h-svh items-center justify-center">
-        <SignIn routing="hash" />
+      <div className="flex min-h-svh flex-col items-center justify-center gap-4">
+        <p className="text-lg text-foreground/70">Sign in to start racing</p>
+        <Button onClick={() => navigate("/")}>← Home</Button>
       </div>
     </SignedOut>
     <SignedIn>
