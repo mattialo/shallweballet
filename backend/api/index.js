@@ -65,7 +65,9 @@ var tracer = import_api.trace.getTracer(serviceName);
 
 // db.ts
 var import_postgres = __toESM(require("postgres"));
-var sql = (0, import_postgres.default)(process.env.DATABASE_URL ?? "postgres://localhost:5432/pi_demo");
+var sql = (0, import_postgres.default)(process.env.DATABASE_URL ?? "postgres://localhost:5432/pi_demo", {
+  ssl: process.env.DATABASE_URL ? "require" : false
+});
 async function initDB(retries = 10, delayMs = 2e3) {
   for (let i = 0; i < retries; i++) {
     try {

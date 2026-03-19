@@ -1,7 +1,9 @@
 import postgres from "postgres"
 import type { Racer } from "./simulation/types"
 
-const sql = postgres(process.env.DATABASE_URL ?? "postgres://localhost:5432/pi_demo")
+const sql = postgres(process.env.DATABASE_URL ?? "postgres://localhost:5432/pi_demo", {
+  ssl: process.env.DATABASE_URL ? "require" : false,
+})
 
 export { sql }
 
