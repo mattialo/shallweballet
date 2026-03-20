@@ -1,6 +1,5 @@
 import { Fragment, useEffect, useState } from "react"
 import { useNavigate } from "react-router"
-import { useAuth } from "@clerk/clerk-react"
 import { CHARACTERS } from "@/lib/characters"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -106,7 +105,6 @@ function HistorySkeletons() {
 
 export default function RaceHistory() {
   const navigate = useNavigate()
-  const { getToken } = useAuth()
   const [races, setRaces] = useState<RaceHistoryItem[]>([])
   const [nextCursor, setNextCursor] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -118,41 +116,33 @@ export default function RaceHistory() {
   >({})
 
   useEffect(() => {
-    getToken().then((token) => {
-      fetch(`${BACKEND_URL}/api/races`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+    fetch(`${BACKEND_URL}/api/races`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
       })
-        .then((r) => {
-          if (!r.ok) throw new Error(`HTTP ${r.status}`)
-          return r.json()
-        })
-        .then((data: HistoryResponse) => {
-          setRaces(data.races)
-          setNextCursor(data.next_cursor)
-        })
-        .catch((err) => setError(String(err)))
-        .finally(() => setLoading(false))
-    })
+      .then((data: HistoryResponse) => {
+        setRaces(data.races)
+        setNextCursor(data.next_cursor)
+      })
+      .catch((err) => setError(String(err)))
+      .finally(() => setLoading(false))
   }, [])
 
   function loadMore() {
     if (!nextCursor) return
     setLoadingMore(true)
-    getToken().then((token) => {
-      fetch(`${BACKEND_URL}/api/races?before=${encodeURIComponent(nextCursor)}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+    fetch(`${BACKEND_URL}/api/races?before=${encodeURIComponent(nextCursor)}`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
       })
-        .then((r) => {
-          if (!r.ok) throw new Error(`HTTP ${r.status}`)
-          return r.json()
-        })
-        .then((data: HistoryResponse) => {
-          setRaces((prev) => [...prev, ...data.races])
-          setNextCursor(data.next_cursor)
-        })
-        .catch((err) => setError(String(err)))
-        .finally(() => setLoadingMore(false))
-    })
+      .then((data: HistoryResponse) => {
+        setRaces((prev) => [...prev, ...data.races])
+        setNextCursor(data.next_cursor)
+      })
+      .catch((err) => setError(String(err)))
+      .finally(() => setLoadingMore(false))
   }
 
   function toggleRow(race: RaceHistoryItem) {
@@ -163,25 +153,21 @@ export default function RaceHistory() {
     setExpandedId(race.id)
     if (detailCache[race.id]) return
     setDetailCache((prev) => ({ ...prev, [race.id]: "loading" }))
-    getToken().then((token) => {
-      fetch(`${BACKEND_URL}/api/races/${race.id}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+    fetch(`${BACKEND_URL}/api/races/${race.id}`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
       })
-        .then((r) => {
-          if (!r.ok) throw new Error(`HTTP ${r.status}`)
-          return r.json()
-        })
-        .then((data: RaceDetail) => {
-          setDetailCache((prev) => ({ ...prev, [race.id]: data }))
-        })
-        .catch(() => {
-          // fall back to list data
-          setDetailCache((prev) => ({
-            ...prev,
-            [race.id]: { participants: race.participants, ticks: null },
-          }))
-        })
-    })
+      .then((data: RaceDetail) => {
+        setDetailCache((prev) => ({ ...prev, [race.id]: data }))
+      })
+      .catch(() => {
+        // fall back to list data
+        setDetailCache((prev) => ({
+          ...prev,
+          [race.id]: { participants: race.participants, ticks: null },
+        }))
+      })
   }
 
   return (
