@@ -1,6 +1,7 @@
 import { Canvas } from "@react-three/fiber"
 import { Suspense, useEffect, useState } from "react"
 import { useNavigate } from "react-router"
+import { useAuth } from "@clerk/clerk-react"
 import { SpinningCharacter, StreakBadge } from "@/components/CharacterCard"
 import { Button } from "@/components/ui/button"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -86,12 +87,16 @@ function HeroCard({
 
 export default function Stats() {
   const navigate = useNavigate()
+  const { getToken } = useAuth()
   const [stats, setStats] = useState<StatsResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [resetting, setResetting] = useState(false)
 
-  function loadStats() {
-    fetch(`${BACKEND_URL}/api/stats`)
+  async function loadStats() {
+    const token = await getToken()
+    fetch(`${BACKEND_URL}/api/stats`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`)
         return r.json()
@@ -108,7 +113,11 @@ export default function Stats() {
     if (!confirm("Reset all race history? This cannot be undone.")) return
     setResetting(true)
     try {
-      const r = await fetch(`${BACKEND_URL}/api/stats`, { method: "DELETE" })
+      const token = await getToken()
+      const r = await fetch(`${BACKEND_URL}/api/stats`, {
+        method: "DELETE",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       if (!r.ok) throw new Error(`HTTP ${r.status}`)
       setStats(null)
       loadStats()

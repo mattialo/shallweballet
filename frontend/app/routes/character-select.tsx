@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
+import { SignedIn, SignedOut, SignIn, useAuth } from "@clerk/clerk-react"
 import { CharacterCard } from "@/components/CharacterCard"
 import { Button } from "@/components/ui/button"
 import { CHARACTERS } from "@/lib/characters"
@@ -18,27 +19,32 @@ interface StatsResponse {
 
 export default function CharacterSelect() {
   const navigate = useNavigate()
+  const { getToken } = useAuth()
   const [selected, setSelected] = useState<string[]>([])
   const [streaks, setStreaks] = useState<
     Map<string, { win_streak: number; loss_streak: number }>
   >(new Map())
 
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/stats`)
-      .then((r) => r.json())
-      .then((data: StatsResponse) => {
-        const map = new Map(
-          data.animals.map((a) => [
-            a.racer_id,
-            {
-              win_streak: a.current_win_streak,
-              loss_streak: a.current_loss_streak,
-            },
-          ])
-        )
-        setStreaks(map)
+    getToken().then((token) => {
+      fetch(`${BACKEND_URL}/api/stats`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
-      .catch(() => {})
+        .then((r) => r.json())
+        .then((data: StatsResponse) => {
+          const map = new Map(
+            data.animals.map((a) => [
+              a.racer_id,
+              {
+                win_streak: a.current_win_streak,
+                loss_streak: a.current_loss_streak,
+              },
+            ])
+          )
+          setStreaks(map)
+        })
+        .catch(() => {})
+    })
   }, [])
 
   const MAX_RACERS = 10
@@ -52,6 +58,13 @@ export default function CharacterSelect() {
   }
 
   return (
+    <>
+      <SignedOut>
+        <div className="flex min-h-svh items-center justify-center">
+          <SignIn routing="hash" />
+        </div>
+      </SignedOut>
+      <SignedIn>
     <div className="relative min-h-svh">
       <div className="fixed inset-0 -z-10 bg-background" />
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-10">
@@ -111,5 +124,7 @@ export default function CharacterSelect() {
         </div>
       </div>
     </div>
+      </SignedIn>
+    </>
   )
 }
