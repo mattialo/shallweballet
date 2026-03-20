@@ -7,8 +7,12 @@ import {
   isRouteErrorResponse,
 } from "react-router"
 
+import { Analytics } from "@vercel/analytics/react"
+import { ClerkProvider } from "@clerk/clerk-react"
 import type { Route } from "./+types/root"
 import "./app.css"
+
+const CLERK_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -21,7 +25,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <title>La Ballata</title>
       </head>
       <body>
-        {children}
+        <ClerkProvider publishableKey={CLERK_KEY}>
+          {children}
+        </ClerkProvider>
+        <Analytics />
         <ScrollRestoration />
         <Scripts />
       </body>
