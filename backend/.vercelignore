@@ -1,9 +1,0 @@
-*.ts
-tsconfig.json
-simulation
-routes
-Dockerfile
-.dockerignore
-.env.example
-README.md
-bun.lock
