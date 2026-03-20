@@ -1,18 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { useLocation, useNavigate } from "react-router"
-import { useAuth, SignedIn, SignedOut, SignIn } from "@clerk/clerk-react"
 import { CHARACTERS } from "@/lib/characters"
 import { RaceScene } from "@/components/race/race-scene"
 import { CountdownOverlay } from "@/components/race/countdown-overlay"
 import { Scoreboard } from "@/components/race/scoreboard"
 import { FinishModal } from "@/components/race/finish-modal"
-import { type RacerSim, SPEED_INTERVAL_MS } from "@/components/race/race-constants"
+import { type RacerSim } from "@/components/race/race-constants"
 import { RaceProgressBar } from "@/components/race/race-progress-bar"
+import { useRacePlayer } from "@/hooks/use-race-player"
 
 export default function Race() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { getToken } = useAuth()
   const state = (location.state ?? {}) as { characterIds?: string[] }
   const characterIds = state.characterIds ?? []
 
@@ -28,17 +27,18 @@ export default function Race() {
         speed: 0,
         rank: null,
         lane: i,
-      })),
+      }))
   )
 
   const ticksRef = useRef<Record<string, number>[]>([])
   const finishOrderRef = useRef<string[]>([])
-  const currentTickRef = useRef(0)
-
   const runningRef = useRef(false)
-  const [countdown, setCountdown] = useState<number | "GO!" | null>(3)
-  const [scoreboard, setScoreboard] = useState<RacerSim[]>(() => [...simRef.current])
-  const [showModal, setShowModal] = useState(false)
+
+  const { countdown, scoreboard, showModal, handleRaceOver } = useRacePlayer(
+    simRef,
+    ticksRef,
+    runningRef
+  )
 
   useEffect(() => {
     if (characterIds.length === 0) {
@@ -46,86 +46,41 @@ export default function Race() {
       return
     }
 
-    getToken().then((token) =>
-    fetch(`${import.meta.env.VITE_BACKEND_URL ?? "http://localhost:3000"}/api/race`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-      body: JSON.stringify({
-        racers: characterIds.map((id, i) => ({ id, lane: i })),
-      }),
-    }))
+    fetch(
+      `${import.meta.env.VITE_BACKEND_URL ?? "http://localhost:3000"}/api/race`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          racers: characterIds.map((id, i) => ({ id, lane: i })),
+        }),
+      }
+    )
       .then((r) => r.json())
-      .then((data: { ticks: Record<string, number>[]; finishOrder: string[] }) => {
-        ticksRef.current = data.ticks
-        finishOrderRef.current = data.finishOrder
-      })
-      .catch((err) => console.error("Failed to fetch race data:", err))
-
-    const scoreboardInterval = setInterval(() => {
-      setScoreboard(simRef.current.map((r) => ({ ...r })))
-    }, 200)
-
-    const speedInterval = setInterval(() => {
-      const tickSpeeds = ticksRef.current[currentTickRef.current]
-      if (!tickSpeeds) return
-
-      for (const racer of simRef.current) {
-        if (racer.rank !== null) continue
-        const speed = tickSpeeds[racer.id]
-        if (speed !== undefined) {
-          racer.speed = speed
+      .then(
+        (data: { ticks: Record<string, number>[]; finishOrder: string[] }) => {
+          ticksRef.current = data.ticks
+          finishOrderRef.current = data.finishOrder
         }
-      }
-
-      currentTickRef.current++
-    }, SPEED_INTERVAL_MS)
-
-    return () => {
-      clearInterval(scoreboardInterval)
-      clearInterval(speedInterval)
-    }
-  }, [])
-
-  useEffect(() => {
-    const steps: Array<number | "GO!" | null> = [3, 2, 1, "GO!", null]
-    let i = 0
-    const tick = () => {
-      i++
-      setCountdown(steps[i])
-      if (steps[i] === null) {
-        runningRef.current = true
-      } else if (steps[i] === "GO!") {
-        setTimeout(tick, 600)
-      } else {
-        setTimeout(tick, 1000)
-      }
-    }
-    const id = setTimeout(tick, 1000)
-    return () => clearTimeout(id)
-  }, [])
-
-  const handleRaceOver = useCallback(() => {
-    setTimeout(() => setShowModal(true), 3000)
+      )
+      .catch((err) => console.error("Failed to fetch race data:", err))
   }, [])
 
   if (characterIds.length === 0) return null
 
   return (
-    <>
-    <SignedOut>
-      <div className="flex min-h-svh items-center justify-center">
-        <SignIn routing="hash" />
-      </div>
-    </SignedOut>
-    <SignedIn>
     <div className="h-svh w-screen overflow-hidden">
-      <RaceScene simRef={simRef} runningRef={runningRef} onRaceOver={handleRaceOver} showModal={showModal} />
+      <RaceScene
+        simRef={simRef}
+        runningRef={runningRef}
+        onRaceOver={handleRaceOver}
+        showModal={showModal}
+      />
       {countdown !== null && <CountdownOverlay value={countdown} />}
       <Scoreboard scoreboard={scoreboard} />
-      {countdown === null && !showModal && <RaceProgressBar scoreboard={scoreboard} />}
+      {countdown === null && !showModal && (
+        <RaceProgressBar scoreboard={scoreboard} />
+      )}
       {showModal && (
         <FinishModal
           scoreboard={scoreboard}
@@ -134,7 +89,5 @@ export default function Race() {
         />
       )}
     </div>
-    </SignedIn>
-    </>
   )
 }

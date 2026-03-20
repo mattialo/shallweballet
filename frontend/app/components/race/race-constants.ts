@@ -31,10 +31,6 @@ export interface RacerSim {
 }
 
 // ---- Helpers ----
-export function randomSpeed(): number {
-  return MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED)
-}
-
 export function zOf(i: number, n: number): number {
   return (i - (n - 1) / 2) * LANE_GAP
 }

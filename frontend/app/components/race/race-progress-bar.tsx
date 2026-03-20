@@ -1,6 +1,8 @@
 import { RACE_LENGTH, type RacerSim } from "./race-constants"
 
-export function RaceProgressBar({ scoreboard }: Readonly<{ scoreboard: RacerSim[] }>) {
+export function RaceProgressBar({
+  scoreboard,
+}: Readonly<{ scoreboard: RacerSim[] }>) {
   const avg = scoreboard.length
     ? scoreboard.reduce((sum, r) => sum + r.position, 0) / scoreboard.length
     : 0
@@ -8,7 +10,7 @@ export function RaceProgressBar({ scoreboard }: Readonly<{ scoreboard: RacerSim[
 
   return (
     <div className="fixed bottom-6 left-1/2 z-[100] w-80 -translate-x-1/2 rounded-xl border border-border bg-background/90 p-3 shadow-md backdrop-blur-sm">
-      <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+      <p className="mb-1.5 text-[11px] font-bold tracking-widest text-muted-foreground uppercase">
         Group Progress
       </p>
       <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
@@ -17,7 +19,9 @@ export function RaceProgressBar({ scoreboard }: Readonly<{ scoreboard: RacerSim[
           style={{ width: `${pct}%` }}
         />
       </div>
-      <p className="mt-1 text-right text-[11px] text-muted-foreground">{Math.round(pct)}%</p>
+      <p className="mt-1 text-right text-[11px] text-muted-foreground">
+        {Math.round(pct)}%
+      </p>
     </div>
   )
 }

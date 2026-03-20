@@ -53,7 +53,9 @@ function formatRelativeDate(iso: string): string {
 }
 
 /** Returns a map of racer_id → fractional arrival time (seconds), interpolated within the crossing tick. */
-function computeArrivalTicks(ticks: Array<Record<string, number>>): Record<string, number> {
+function computeArrivalTicks(
+  ticks: Array<Record<string, number>>
+): Record<string, number> {
   const positions: Record<string, number> = {}
   const arrivals: Record<string, number> = {}
   for (let i = 0; i < ticks.length; i++) {
@@ -109,7 +111,9 @@ export default function RaceHistory() {
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [expandedId, setExpandedId] = useState<number | null>(null)
-  const [detailCache, setDetailCache] = useState<Record<number, RaceDetail | "loading">>({})
+  const [detailCache, setDetailCache] = useState<
+    Record<number, RaceDetail | "loading">
+  >({})
 
   useEffect(() => {
     fetch(`${BACKEND_URL}/api/races`)
@@ -181,7 +185,10 @@ export default function RaceHistory() {
           <Card>
             <CardContent className="flex flex-col items-center gap-4 py-12 text-center">
               <p className="text-sm text-destructive">{error}</p>
-              <Button variant="outline" onClick={() => window.location.reload()}>
+              <Button
+                variant="outline"
+                onClick={() => window.location.reload()}
+              >
                 Retry
               </Button>
             </CardContent>
@@ -194,7 +201,9 @@ export default function RaceHistory() {
               <p className="text-sm text-muted-foreground">
                 Run some races to build up your history.
               </p>
-              <Button onClick={() => navigate("/character-select")}>Start Racing</Button>
+              <Button onClick={() => navigate("/character-select")}>
+                Start Racing
+              </Button>
             </CardContent>
           </Card>
         ) : (
@@ -203,9 +212,15 @@ export default function RaceHistory() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-16 text-xs tracking-widest uppercase">#</TableHead>
-                    <TableHead className="w-24 text-xs tracking-widest uppercase">When</TableHead>
-                    <TableHead className="text-xs tracking-widest uppercase">Result</TableHead>
+                    <TableHead className="w-16 text-xs tracking-widest uppercase">
+                      #
+                    </TableHead>
+                    <TableHead className="w-24 text-xs tracking-widest uppercase">
+                      When
+                    </TableHead>
+                    <TableHead className="text-xs tracking-widest uppercase">
+                      Result
+                    </TableHead>
                     <TableHead className="text-right text-xs tracking-widest uppercase">
                       Replay
                     </TableHead>
@@ -213,9 +228,14 @@ export default function RaceHistory() {
                 </TableHeader>
                 <TableBody>
                   {races.map((race) => {
-                    const winner = CHARACTERS.find((c) => c.id === race.participants[0]?.racer_id)
+                    const winner = CHARACTERS.find(
+                      (c) => c.id === race.participants[0]?.racer_id
+                    )
                     const loser = CHARACTERS.find(
-                      (c) => c.id === race.participants[race.participants.length - 1]?.racer_id,
+                      (c) =>
+                        c.id ===
+                        race.participants[race.participants.length - 1]
+                          ?.racer_id
                     )
                     const isExpanded = expandedId === race.id
                     const detail = detailCache[race.id]
@@ -226,7 +246,9 @@ export default function RaceHistory() {
                           className="cursor-pointer"
                           onClick={() => toggleRow(race)}
                         >
-                          <TableCell className="text-muted-foreground">#{race.id}</TableCell>
+                          <TableCell className="text-muted-foreground">
+                            #{race.id}
+                          </TableCell>
                           <TableCell className="text-muted-foreground">
                             {formatRelativeDate(race.created_at)}
                           </TableCell>
@@ -242,7 +264,9 @@ export default function RaceHistory() {
                                   ☕ {loser.name}
                                 </Badge>
                               )}
-                              <Badge variant="secondary">{race.participants.length} racers</Badge>
+                              <Badge variant="secondary">
+                                {race.participants.length} racers
+                              </Badge>
                             </div>
                           </TableCell>
                           <TableCell className="text-right">
@@ -289,7 +313,11 @@ export default function RaceHistory() {
 
             {nextCursor && (
               <div className="flex justify-center">
-                <Button variant="outline" onClick={loadMore} disabled={loadingMore}>
+                <Button
+                  variant="outline"
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                >
                   {loadingMore ? "Loading..." : "Load more"}
                 </Button>
               </div>
@@ -317,10 +345,14 @@ function LineupTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-14 pl-6 text-xs tracking-widest uppercase">Pos</TableHead>
-          <TableHead className="text-xs tracking-widest uppercase">Racer</TableHead>
+          <TableHead className="w-14 pl-6 text-xs tracking-widest uppercase">
+            Pos
+          </TableHead>
+          <TableHead className="text-xs tracking-widest uppercase">
+            Racer
+          </TableHead>
           {arrivals && (
-            <TableHead className="text-right pr-6 text-xs tracking-widest uppercase">
+            <TableHead className="pr-6 text-right text-xs tracking-widest uppercase">
               Arrival
             </TableHead>
           )}

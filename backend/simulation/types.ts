@@ -1,9 +1,9 @@
 export interface Racer {
-  id: string
-  lane: number
+  id: string;
+  lane: number;
 }
 
 export interface RaceResult {
-  ticks: Array<Record<string, number>>
-  finishOrder: string[]
+  ticks: Array<Record<string, number>>;
+  finishOrder: string[];
 }

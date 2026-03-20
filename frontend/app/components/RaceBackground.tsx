@@ -4,24 +4,9 @@ import { Suspense, useEffect, useMemo, useRef } from "react"
 import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js"
 import { AnimationMixer, AnimationClip } from "three"
 import type { Group } from "three"
+import { CHARACTERS } from "@/lib/characters"
 
-const CHARACTER_MODELS = [
-  "/character_models/animal-bunny.glb",
-  "/character_models/animal-cat.glb",
-  "/character_models/animal-caterpillar.glb",
-  "/character_models/animal-chick.glb",
-  "/character_models/animal-cow.glb",
-  "/character_models/animal-dog.glb",
-  "/character_models/animal-elephant.glb",
-  "/character_models/animal-fish.glb",
-  "/character_models/animal-giraffe.glb",
-  "/character_models/animal-hog.glb",
-  "/character_models/animal-lion.glb",
-  "/character_models/animal-monkey.glb",
-  "/character_models/animal-parrot.glb",
-  "/character_models/animal-pig.glb",
-  "/character_models/animal-tiger.glb",
-]
+const CHARACTER_MODELS = CHARACTERS.map((c) => c.modelUrl)
 
 const SLOTS: {
   id: string
@@ -82,7 +67,7 @@ function Character({
     object: clone,
     position: [startX, -1, z] as [number, number, number],
     rotation: [0, Math.PI / 2, 0] as [number, number, number],
-    scale: .75,
+    scale: 0.75,
   }
 
   return <primitive ref={ref} {...primitiveProps} />

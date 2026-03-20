@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router"
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { RaceBackground } from "@/components/RaceBackground"
@@ -8,14 +7,6 @@ export default function Home() {
   const navigate = useNavigate()
   return (
     <div className="flex min-h-svh flex-col items-center justify-center">
-      <div className="fixed top-4 right-4 z-20 flex items-center gap-3">
-        <SignedOut>
-          <SignInButton mode="modal">
-            <Button variant="outline" size="sm">Sign in</Button>
-          </SignInButton>
-        </SignedOut>
-        <SignedIn><UserButton /></SignedIn>
-      </div>
       <div className="fixed inset-0 -z-10 bg-background" />
       <RaceBackground />
       <div className="flex max-w-3xl flex-col items-center gap-6 px-6 text-center">
@@ -56,7 +47,6 @@ export default function Home() {
             Race History
           </Button>
         </div>
-
       </div>
     </div>
   )

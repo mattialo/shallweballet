@@ -1,17 +1,24 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router"
 import { CHARACTERS } from "@/lib/characters"
 import { RaceScene } from "@/components/race/race-scene"
 import { CountdownOverlay } from "@/components/race/countdown-overlay"
 import { Scoreboard } from "@/components/race/scoreboard"
 import { FinishModal } from "@/components/race/finish-modal"
-import { type RacerSim, SPEED_INTERVAL_MS } from "@/components/race/race-constants"
+import { type RacerSim } from "@/components/race/race-constants"
 import { RaceProgressBar } from "@/components/race/race-progress-bar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Separator } from "@/components/ui/separator"
+import { useRacePlayer } from "@/hooks/use-race-player"
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:3000"
 
@@ -87,7 +94,9 @@ export default function RaceReplay() {
         <Card className="w-full max-w-sm">
           <CardHeader>
             <CardTitle>Race #{raceData.id} Result</CardTitle>
-            <p className="text-sm text-muted-foreground">Replay data not available for this race.</p>
+            <p className="text-sm text-muted-foreground">
+              Replay data not available for this race.
+            </p>
           </CardHeader>
           <Separator />
           <CardContent className="pt-4">
@@ -96,10 +105,15 @@ export default function RaceReplay() {
                 const character = CHARACTERS.find((c) => c.id === racerId)
                 return (
                   <li key={racerId} className="flex items-center gap-3">
-                    <Badge variant={i === 0 ? "default" : "secondary"} className="w-8 justify-center">
+                    <Badge
+                      variant={i === 0 ? "default" : "secondary"}
+                      className="w-8 justify-center"
+                    >
                       {RANK_MEDALS[i] ?? `${i + 1}`}
                     </Badge>
-                    <span className="text-sm font-medium">{character?.name ?? racerId}</span>
+                    <span className="text-sm font-medium">
+                      {character?.name ?? racerId}
+                    </span>
                   </li>
                 )
               })}
@@ -136,78 +150,32 @@ function ReplayPlayer({ raceData }: { raceData: RaceDetail }) {
           lane: p.lane,
         }
       })
-      .filter((r): r is RacerSim => r !== null),
+      .filter((r): r is RacerSim => r !== null)
   )
 
   const ticksRef = useRef<Record<string, number>[]>(raceData.ticks ?? [])
   const finishOrderRef = useRef<string[]>(raceData.finish_order)
-  const currentTickRef = useRef(0)
   const runningRef = useRef(false)
 
-  const [countdown, setCountdown] = useState<number | "GO!" | null>(3)
-  const [scoreboard, setScoreboard] = useState<RacerSim[]>(() => [...simRef.current])
-  const [showModal, setShowModal] = useState(false)
-  const [raceStarted, setRaceStarted] = useState(false)
-
-  useEffect(() => {
-    const scoreboardInterval = setInterval(() => {
-      setScoreboard(simRef.current.map((r) => ({ ...r })))
-    }, 200)
-    return () => clearInterval(scoreboardInterval)
-  }, [])
-
-  useEffect(() => {
-    const steps: Array<number | "GO!" | null> = [3, 2, 1, "GO!", null]
-    let i = 0
-    const tick = () => {
-      i++
-      setCountdown(steps[i])
-      if (steps[i] === null) {
-        runningRef.current = true
-        setRaceStarted(true)
-      } else if (steps[i] === "GO!") {
-        setTimeout(tick, 600)
-      } else {
-        setTimeout(tick, 1000)
-      }
-    }
-    const timerId = setTimeout(tick, 1000)
-    return () => clearTimeout(timerId)
-  }, [])
-
-  useEffect(() => {
-    if (!raceStarted) return
-
-    const applyTick = () => {
-      const tickSpeeds = ticksRef.current[currentTickRef.current]
-      if (!tickSpeeds) return
-
-      for (const racer of simRef.current) {
-        if (racer.rank !== null) continue
-        const speed = tickSpeeds[racer.id]
-        if (speed !== undefined) {
-          racer.speed = speed
-        }
-      }
-
-      currentTickRef.current++
-    }
-
-    applyTick()
-    const speedInterval = setInterval(applyTick, SPEED_INTERVAL_MS)
-    return () => clearInterval(speedInterval)
-  }, [raceStarted])
-
-  const handleRaceOver = useCallback(() => {
-    setTimeout(() => setShowModal(true), 3000)
-  }, [])
+  const { countdown, scoreboard, showModal, handleRaceOver } = useRacePlayer(
+    simRef,
+    ticksRef,
+    runningRef
+  )
 
   return (
     <div className="h-svh w-screen overflow-hidden">
-      <RaceScene simRef={simRef} runningRef={runningRef} onRaceOver={handleRaceOver} showModal={showModal} />
+      <RaceScene
+        simRef={simRef}
+        runningRef={runningRef}
+        onRaceOver={handleRaceOver}
+        showModal={showModal}
+      />
       {countdown !== null && <CountdownOverlay value={countdown} />}
       <Scoreboard scoreboard={scoreboard} />
-      {countdown === null && !showModal && <RaceProgressBar scoreboard={scoreboard} />}
+      {countdown === null && !showModal && (
+        <RaceProgressBar scoreboard={scoreboard} />
+      )}
       {showModal && (
         <FinishModal
           scoreboard={scoreboard}
